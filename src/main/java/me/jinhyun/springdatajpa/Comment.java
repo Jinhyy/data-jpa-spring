@@ -19,4 +19,10 @@ public class Comment {
 
     private String comment;
 
+    private int likeCount;
+
+    public boolean likeCountBiggerThan(int likeCount){
+        return ( this.likeCount > likeCount) ? true : false;
+    }
+
 }
