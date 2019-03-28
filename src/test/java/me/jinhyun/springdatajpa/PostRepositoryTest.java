@@ -4,6 +4,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -16,10 +18,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
+@Import(PostRepositoryTestConfig.class)
 public class PostRepositoryTest {
 
     @Autowired
     PostRepository postRepository;
+
+    @Autowired  // 24-3. applicationContext안에 EventPublisher 있으므로 받아온다.
+    ApplicationContext applicationContext;
+
+    @Test   // 24-4. 테스트 코드 작성
+    public void eventTest(){
+        Post post = new Post();
+        post.setTitle("Post-Event-Title");
+        PostPublishedEvent postPublishedEvent = new PostPublishedEvent(post);
+
+        applicationContext.publishEvent(postPublishedEvent);    // 이벤트 발생시킨다.
+    }
+
+    @Test   // AbstractAggregation 상속 이용
+    public void eventTest2(){
+        Post post = new Post();
+        post.setTitle("Aggregation 상속 구현체 이용");
+        postRepository.save(post.publish());
+    }
 
     @Test
     public void crudTest(){

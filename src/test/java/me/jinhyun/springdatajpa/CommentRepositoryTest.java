@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import javax.swing.text.html.Option;
 
@@ -16,6 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
@@ -28,7 +34,7 @@ public class CommentRepositoryTest {
     CommentRepository commentRepository;
 
     @Test
-    public void crud(){
+    public void crud() throws InterruptedException, ExecutionException, TimeoutException {
         // Given
         Comment comment = new Comment();
         comment.setComment("comment-comment1");
@@ -44,8 +50,28 @@ public class CommentRepositoryTest {
         assertThat(commentRepository.count()).isEqualTo(2l);
 
         // Then 메소드 쿼리 테스트
-        List<Comment> methodQueryTest=commentRepository.findCommentsByCommentContains("comment1");
-        assertThat(methodQueryTest.size()).isEqualTo(1);
+        ListenableFuture<List<Comment>> future =
+                commentRepository.findCommentsByCommentContains("comment1");
+        System.out.println("===================================");
+        System.out.println("is done? " + future.isDone());
+
+        future.addCallback(new ListenableFutureCallback<List<Comment>>() {
+            @Override
+            public void onFailure(Throwable ex) {
+                System.out.println("비동기콜 실패" + ex);
+            }
+
+            @Override
+            public void onSuccess(List<Comment> result) {
+                System.out.println("비동기콜 성공");
+                result.forEach(x-> System.out.println(x.getComment()));
+            }
+        });
+        /*
+            List<Comment> comments = future.get(10l, TimeUnit.SECONDS);
+            comments.forEach(x-> System.out.println(x.getComment()));
+       */
+
     }
 
     @Test
@@ -83,6 +109,7 @@ public class CommentRepositoryTest {
         long a = streamComment.filter(x-> x.likeCountBiggerThan(5)).count();
         assertThat(a).isEqualTo(2l);
     }
+
 }
 
 

@@ -2,13 +2,14 @@ package me.jinhyun.springdatajpa;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity @Getter @Setter
-public class Post {
+public class Post extends AbstractAggregateRoot<Post> {
 
     @Id @GeneratedValue
     private Long id;
@@ -34,5 +35,10 @@ public class Post {
                 ", title='" + title + '\'' +
                 ", comments=" + comments +
                 '}';
+    }
+
+    public Post publish(){
+        this.registerEvent(new PostPublishedEvent(this));
+        return this;
     }
 }
