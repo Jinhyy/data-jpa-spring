@@ -1,10 +1,9 @@
 package me.jinhyun.springdatajpa;
-
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.Repository;
+import org.springframework.lang.Nullable;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +16,6 @@ public interface MyRepository<T, Id extends Serializable> extends Repository<T, 
     List<T> findAll();
     long count();
 
-    @Nullable   // 이 메소드의 리턴값이 null 일 수 있다.
+    @Nullable // 이 메소드의 리턴값이 null 일 수 있다.
     <E extends T> Optional<E> findById(@NotNull Id id);
 }

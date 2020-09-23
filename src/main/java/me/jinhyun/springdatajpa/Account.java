@@ -9,14 +9,14 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity(name = "newAccount")
+@Entity(name = "account")
 @Getter @Setter
 public class Account {
 
     @Id @GeneratedValue
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String username;
 
     private String password;
